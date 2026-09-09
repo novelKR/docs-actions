@@ -1,0 +1,2 @@
+# Development/CI only; never installed by the deployment workflow.
+PyYAML==6.0.3

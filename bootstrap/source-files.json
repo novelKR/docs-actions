@@ -1,0 +1,23 @@
+[
+  ".gitattributes",
+  ".github/CODEOWNERS",
+  ".github/dependabot.yml",
+  ".github/workflows/ci.yml",
+  ".github/workflows/reusable-pages-deploy.yml",
+  ".gitignore",
+  "AGENTS.md",
+  "LICENSE",
+  "PROVENANCE.json",
+  "README.ko.md",
+  "README.md",
+  "SECURITY.md",
+  "bootstrap/publish.py",
+  "bootstrap/source-files.json",
+  "contracts/pages-deploy-v1.json",
+  "examples/caller-job.yml.example",
+  "requirements-ci.txt",
+  "scripts/check_contract.py",
+  "scripts/migrate_gateway.py",
+  "tests/fixtures/gateway-reusable.yml",
+  "tests/test_contracts.py"
+]

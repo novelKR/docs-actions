@@ -1,0 +1,15 @@
+# Insert AFTER your repository-specific build and required gate jobs.
+# Replace the explicit marker with a reviewed, real 40-character commit SHA.
+# This is a job fragment, NOT a complete runnable workflow.
+docs-pages:
+  needs: ci-required
+  if: >-
+    (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+    github.ref == 'refs/heads/main'
+  permissions:
+    pages: write
+    id-token: write
+  uses: novelKR/docs-actions/.github/workflows/reusable-pages-deploy.yml@<REVIEWED_FULL_COMMIT_SHA>
+  with:
+    artifact-name: github-pages
+    publication-branch: main

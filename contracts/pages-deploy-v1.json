@@ -1,0 +1,36 @@
+{
+  "schema": "docs-pages-deploy/v1",
+  "workflow": ".github/workflows/reusable-pages-deploy.yml",
+  "inputs": {
+    "artifact-name": {
+      "type": "string",
+      "default": "github-pages"
+    },
+    "publication-branch": {
+      "type": "string",
+      "default": "main"
+    }
+  },
+  "output": "page-url",
+  "permissions": {
+    "pages": "write",
+    "id-token": "write"
+  },
+  "events": [
+    "push",
+    "workflow_dispatch"
+  ],
+  "environment": "github-pages",
+  "artifact_scope": "caller-current-run",
+  "site_scope": "caller-repository",
+  "build_owner": "caller",
+  "gateway_onboarding": "pending-central-publication",
+  "forbidden": [
+    "cross-repository-deploy",
+    "cross-run-artifact",
+    "build-command",
+    "secrets-inherit",
+    "preview",
+    "environment-override"
+  ]
+}

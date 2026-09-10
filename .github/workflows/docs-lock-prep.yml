@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
-# One-time, read-only preparation; removed before the review PR is opened.
+# Temporary branch-only dependency preparation; removed before opening the PR.
+# Resolves public metadata only (--ignore-scripts); no site or deployment runs.
 name: Prepare Docs dependency lock
 on:
   push:
@@ -8,30 +9,39 @@ permissions:
   contents: read
 jobs:
   lock:
-    if: github.repository == 'novelKR/docs-actions'
+    if: github.repository == 'novelKR/docs-actions' && github.ref == 'refs/heads/codex/docs-site-self-hosting'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24.21.0'
-      - name: Resolve the exact direct dependencies without lifecycle scripts
+      - name: Resolve exact direct dependencies without executing package scripts
         run: npm install --prefix docs-site --package-lock-only --ignore-scripts
-      - name: Export public metadata for offline review
+      - name: Retain only the new lockfile on this preparation branch
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           python3 - <<'PY'
-          import base64, gzip, hashlib, json, subprocess
+          import base64, json, subprocess
           from pathlib import Path
-          def emit(name, value):
-              data = json.dumps(value, separators=(',', ':'), ensure_ascii=False).encode()
-              print(name + '_SHA256=' + hashlib.sha256(data).hexdigest())
-              print(name + '_GZIP_BASE64=' + base64.b64encode(gzip.compress(data, mtime=0)).decode())
-          emit('LOCK', json.loads(Path('docs-site/package-lock.json').read_text()))
-          revision = 'ac8e982b33ef844440705110af3757a8fbec6495'
-          names = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', revision], text=True).splitlines()
-          emit('SOURCE', {p: subprocess.check_output(['git', 'show', revision + ':' + p], text=True) for p in names})
+          endpoint = 'repos/novelKR/docs-actions/contents/docs-site/package-lock.json'
+          branch = 'codex/docs-site-self-hosting'
+          previous = subprocess.run(['gh', 'api', endpoint + '?ref=' + branch], capture_output=True, text=True)
+          if previous.returncode == 0:
+              raise SystemExit('Refuse to overwrite an existing lockfile')
+          if '404' not in previous.stderr:
+              raise SystemExit('Could not establish that the lockfile is absent')
+          body = {'message': 'build(docs): pin npm dependency graph for the documentation site',
+                  'branch': branch, 'content': base64.b64encode(Path('docs-site/package-lock.json').read_bytes()).decode()}
+          result = subprocess.run(['gh', 'api', '--method', 'PUT', endpoint, '--input', '-'],
+                                  input=json.dumps(body), text=True, capture_output=True, check=True)
+          response = json.loads(result.stdout)
+          print('Pinned lock commit: ' + response['commit']['sha'])
+          print('Pinned lock blob: ' + response['content']['sha'])
           PY

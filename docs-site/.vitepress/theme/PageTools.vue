@@ -30,7 +30,6 @@ async function copyPage() {
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
         {{ busy ? (ko ? '복사 중…' : 'Copying…') : (ko ? '페이지 복사' : 'Copy page') }}
       </button>
-      <a class="page-source" :href="withBase(frontmatter.copyPath)" :title="ko ? 'Markdown 원문 열기' : 'Open original Markdown'">Markdown</a>
     </div>
     <span v-if="status" class="page-tools-status" role="status" aria-live="polite">{{ status }}</span>
   </div>

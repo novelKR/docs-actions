@@ -23,8 +23,6 @@
 .page-tools button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; border: 1px solid var(--vp-c-divider); border-radius: 7px; padding: 5px 10px; font: inherit; color: var(--vp-c-text-1); background: var(--vp-c-bg); cursor: pointer; }
 .page-tools button:hover { border-color: var(--vp-c-brand-1); background: var(--vp-c-brand-soft); }
 .page-tools button:disabled { cursor: progress; opacity: .65; }
-.page-source { color: var(--vp-c-text-2); text-underline-offset: 4px; }
-.page-source:hover { color: var(--vp-c-brand-1); text-decoration: underline; }
 .page-tools :focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 4px; }
 .page-tools-status { flex-basis: 100%; color: var(--vp-c-text-2); text-align: right; overflow-wrap: anywhere; }
 .deployment-path { max-width: 1152px; margin: 32px auto 64px; padding: 0 24px; }
@@ -38,8 +36,7 @@
 .VPFooter a { text-underline-offset: 3px; }
 @media (max-width: 640px) {
   .page-tools { margin-bottom: 20px; }
-  .page-tools button, .page-source { min-height: 44px; }
-  .page-source { display: inline-flex; align-items: center; }
+  .page-tools button { min-height: 44px; }
   .deployment-path ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .vp-doc h1 { font-size: 28px; }
 }

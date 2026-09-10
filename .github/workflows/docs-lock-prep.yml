@@ -15,17 +15,23 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24.21.0'
       - name: Resolve the exact direct dependencies without lifecycle scripts
         run: npm install --prefix docs-site --package-lock-only --ignore-scripts
-      - name: Export public lock metadata for offline review
+      - name: Export public metadata for offline review
         run: |
           python3 - <<'PY'
-          import base64, gzip, hashlib, json
+          import base64, gzip, hashlib, json, subprocess
           from pathlib import Path
-          data = json.dumps(json.loads(Path('docs-site/package-lock.json').read_text()), separators=(',', ':')).encode()
-          print('LOCK_SHA256=' + hashlib.sha256(data).hexdigest())
-          print('LOCK_GZIP_BASE64=' + base64.b64encode(gzip.compress(data, mtime=0)).decode())
+          def emit(name, value):
+              data = json.dumps(value, separators=(',', ':'), ensure_ascii=False).encode()
+              print(name + '_SHA256=' + hashlib.sha256(data).hexdigest())
+              print(name + '_GZIP_BASE64=' + base64.b64encode(gzip.compress(data, mtime=0)).decode())
+          emit('LOCK', json.loads(Path('docs-site/package-lock.json').read_text()))
+          revision = 'ac8e982b33ef844440705110af3757a8fbec6495'
+          names = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', revision], text=True).splitlines()
+          emit('SOURCE', {p: subprocess.check_output(['git', 'show', revision + ':' + p], text=True) for p in names})
           PY

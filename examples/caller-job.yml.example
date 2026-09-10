@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 # Insert AFTER your repository-specific build and required gate jobs.
 # Replace the explicit marker with a reviewed, real 40-character commit SHA.
 # This is a job fragment, NOT a complete runnable workflow.

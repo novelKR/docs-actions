@@ -1,36 +1,46 @@
 {
-  "schema": "docs-actions-provenance/v1",
-  "license": "AGPL-3.0-only",
-  "extracted_at": "2026-09-10",
+  "schema": "docs-actions-provenance/v2",
+  "license": "MIT",
+  "license_scope": "Maintained implementation, documentation and examples; historical exceptions below.",
   "upstream": {
     "repository": "novelKR/agent-response-gateway",
     "commit": "41e1417a84ae7785e1450d2d35240fe0797c96bf",
-    "pull_request": 52
+    "pull_request": 52,
+    "license": "AGPL-3.0-only"
   },
-  "files": [
+  "initial_publication": {
+    "repository": "novelKR/docs-actions",
+    "commit": "1191cea41d88f07497be04407b3c949ca8361733",
+    "license": "AGPL-3.0-only"
+  },
+  "license_transition": {
+    "date": "2026-09-10",
+    "from": "AGPL-3.0-only",
+    "to": "MIT",
+    "scope_document": "docs/licensing.md",
+    "historical_grants_revoked": false
+  },
+  "historical_artifacts": [
     {
-      "path": ".github/workflows/reusable-pages-deploy.yml",
-      "upstream_path": ".github/workflows/reusable-pages-deploy.yml",
-      "upstream_blob_sha": "3e8d92e678397e5b7ffbeb2b10ddf27f3bb002f5",
-      "changes": "Header comments only; executable YAML mapping unchanged. Original retained in tests/fixtures/gateway-reusable.yml."
+      "path": "tests/fixtures/gateway-reusable.yml",
+      "git_blob_sha": "3e8d92e678397e5b7ffbeb2b10ddf27f3bb002f5",
+      "license": "AGPL-3.0-only"
     },
     {
-      "path": "LICENSE",
-      "upstream_path": "LICENSE",
-      "upstream_blob_sha": "be3f7b28e564e7dd05eaf59d64adba1a4065ac0e",
-      "changes": "None; byte-for-byte identical."
-    }
-  ],
-  "runtime_actions": [
+      "path": "licensing/historical/AGPL-3.0.txt",
+      "git_blob_sha": "be3f7b28e564e7dd05eaf59d64adba1a4065ac0e",
+      "license": "License document; preserve its own verbatim-copy notice."
+    },
     {
-      "repository": "actions/deploy-pages",
-      "commit": "d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e",
-      "version_label": "v4",
-      "bundled": false
+      "path": "licensing/historical/PROVENANCE-v1.json",
+      "git_blob_sha": "4587df748fbd06459862285c3584ded361771ebf",
+      "license": "AGPL-3.0-only"
     }
   ],
+  "runtime_contract": "contracts/pages-deploy-v1.json",
   "notes": [
-    "No gateway source, history, consumer data or secrets are copied.",
-    "No legal approval or additional commercial license grant is asserted."
+    "No history is rewritten; existing AGPL grants remain available for earlier copies.",
+    "Referenced third-party Actions and CI dependencies retain their own licenses and are not vendored.",
+    "Source hashes record integrity, not ownership or legal approval. Maintainer rights review is required before merging a license transition."
   ]
 }

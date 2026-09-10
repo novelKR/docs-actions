@@ -4,11 +4,13 @@
   "inputs": {
     "artifact-name": {
       "type": "string",
-      "default": "github-pages"
+      "default": "github-pages",
+      "required": false
     },
     "publication-branch": {
       "type": "string",
-      "default": "main"
+      "default": "main",
+      "required": false
     }
   },
   "output": "page-url",
@@ -24,7 +26,6 @@
   "artifact_scope": "caller-current-run",
   "site_scope": "caller-repository",
   "build_owner": "caller",
-  "gateway_onboarding": "pending-central-publication",
   "forbidden": [
     "cross-repository-deploy",
     "cross-run-artifact",
@@ -32,5 +33,14 @@
     "secrets-inherit",
     "preview",
     "environment-override"
-  ]
+  ],
+  "runtime": {
+    "runner": "ubuntu-24.04",
+    "timeout_minutes": 10,
+    "action": "actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e"
+  },
+  "concurrency": {
+    "group": "github-pages",
+    "cancel_in_progress": false
+  }
 }

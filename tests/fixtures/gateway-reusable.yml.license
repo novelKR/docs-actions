@@ -1,0 +1,10 @@
+SPDX-License-Identifier: AGPL-3.0-only
+
+Historical, non-executing source fixture, retained byte-for-byte from
+novelKR/agent-response-gateway at 41e1417a84ae7785e1450d2d35240fe0797c96bf.
+Original path: .github/workflows/reusable-pages-deploy.yml
+Git blob SHA: 3e8d92e678397e5b7ffbeb2b10ddf27f3bb002f5
+
+This fixture is excluded from the maintained implementation's MIT grant.
+Preserve this notice and licensing/historical/AGPL-3.0.txt when copying it.
+The current deployment workflow does not execute or distribute this fixture.

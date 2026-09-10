@@ -2,65 +2,98 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-Reusable, caller-owned GitHub Pages deployments. The intended public repository
-is `novelKR/docs-actions`. This source package does not itself establish that the
-remote repository, a release, or a Pages deployment exists.
+Deployment-only GitHub Pages workflows for independently owned repositories.
+Each consumer builds and verifies its own site; this repository supplies only
+the final deployment job. It is not a documentation portal or credential broker.
 
-## Boundary
+The maintained implementation, documentation and examples use **MIT**. Historical
+AGPL evidence is explicitly excluded; see [license scope](docs/licensing.md).
+The gateway project's license and existing consumer pins are not changed here.
 
-Each consumer owns its documentation sources, framework, builds, integrity and
-publication checks, Pages artifacts, production site and `github-pages` environment.
-This repository owns **only the deployment implementation and its tests**.
-It is not an aggregate documentation portal, a cross-repository administrator,
-or a central holder of consumer credentials.
+## Use from a consumer repository
+
+First enable Pages with the GitHub Actions source, protect the publishing branch,
+and restrict the consumer's `github-pages` environment to that branch. Require an
+environment reviewer when publication needs human approval. A CODEOWNERS file
+alone does not enforce these settings. Allow this public reusable workflow in
+the consumer's Actions policy.
+
+Keep these stages in the consumer's own workflow:
 
 ```text
-Consumer PR -> read-only build/check -> review artifact; no deployment
-Consumer main -> build once -> verify -> Pages artifact -> required CI gate
-                                                     -> reusable workflow
-                                                        from this repository
-                                                     -> CONSUMER's Pages site
+PR -> read-only build and verification -> review artifact; no deployment
+main -> build once -> verify source and file hashes -> Pages artifact
+     -> required CI gate -> pinned central workflow -> consumer's Pages site
 ```
 
-The reusable workflow does not check out code, run build commands, install
-packages, inherit application secrets, accept a PAT, select another repository,
-read an artifact from another run, or override the deployment environment.
-It uses the caller's token and repository context. Central CI has only
-`contents: read`; publishing permissions belong to each consumer's deploy job.
+Upload with `actions/upload-pages-artifact` after validating the exact output
+files, manifest source SHA, clean build provenance, and publication/license
+boundaries. Pin the upload action to a reviewed full SHA. Use a unique artifact
+name within the run, and keep its retention longer than the expected approval
+wait. Builds and uploads need no Pages write permission. Do not rebuild in the
+privileged deployment job or promote an untrusted PR artifact.
 
-## Deployment contract v1
+Add this **job fragment** beneath the caller's `jobs:` mapping, after its existing
+build and required gate jobs. Replace the marker with a real full commit SHA
+whose code, license scope and central CI you have reviewed. The marker is not an
+existing tag or release, and this fragment is not a standalone workflow.
 
-See [the workflow](.github/workflows/reusable-pages-deploy.yml) and
-[the machine-readable contract](contracts/pages-deploy-v1.json).
+```yaml
+# SPDX-License-Identifier: MIT
+# Insert AFTER your repository-specific build and required gate jobs.
+# Replace the explicit marker with a reviewed, real 40-character commit SHA.
+# This is a job fragment, NOT a complete runnable workflow.
+docs-pages:
+  needs: ci-required
+  if: >-
+    (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+    github.ref == 'refs/heads/main'
+  permissions:
+    pages: write
+    id-token: write
+  uses: novelKR/docs-actions/.github/workflows/reusable-pages-deploy.yml@<REVIEWED_FULL_COMMIT_SHA>
+  with:
+    artifact-name: github-pages
+    publication-branch: main
+```
 
-| Item | Contract |
+The `ci-required` job must require successful build/publication checks; skipping
+or failing them must block deployment. Grant only the calling deployment job
+`pages: write` and `id-token: write`. Do not use `secrets: inherit`. Each consumer
+retains its own toolchain, base path, notices, artifact checks and site settings.
+See [maintenance and pin updates](docs/maintenance.md) before adopting a new SHA.
+
+## Contract v1
+
+[Machine-readable contract](contracts/pages-deploy-v1.json) ·
+[Workflow](.github/workflows/reusable-pages-deploy.yml)
+
+| Item | Value |
 | --- | --- |
-| `artifact-name` | String; default `github-pages`; already uploaded in the caller's current run |
-| `publication-branch` | String; default `main`; caller must also restrict its environment to this branch |
-| `page-url` | Output reported by a successful official Pages deployment |
-| Permissions | `pages: write` and `id-token: write`, on the caller's deploy job only |
-| Accepted events | `push` or `workflow_dispatch` on the publication branch |
-| Environment | Fixed `github-pages`, in the caller repository |
-| Build and checks | Entirely the caller's responsibility, completed before calling |
-| Runtime | One SHA-pinned `actions/deploy-pages` step, GitHub-hosted runner |
+| `artifact-name` | Optional string; default `github-pages`; current caller run only |
+| `publication-branch` | Optional string; default `main`; environment restrictions must match |
+| `page-url` | Output returned by a successful official Pages deployment |
+| Events | `push` or `workflow_dispatch` on the publication branch |
+| Environment | Fixed `github-pages` in the caller repository |
+| Permissions | `pages: write`, `id-token: write` on the deploy job |
+| Execution | One full-SHA-pinned official `actions/deploy-pages` step |
 
-An artifact's name does not prove it was reviewed. The consumer must bind its
-build manifest to the intended commit, verify file hashes and publication
-boundaries, and call only after its required gate. Enforce human approval in
-that consumer's environment when needed. Do not use `pull_request_target` or
-promote an untrusted PR artifact with this contract.
+No checkout, build command, package installation, PAT input, inherited application
+secret, target-repository selector, cross-run artifact, preview or environment
+override is provided. The artifact name is not proof of review: the caller owns
+verification and approval. GitHub evaluates the reusable workflow in the caller's
+repository context; central CI itself remains read-only.
 
-The repository-local deployment concurrency group prevents simultaneous Pages
-deployments; it does not implement newest-commit-wins ordering. Preserve the
-consumer's main-run serialization. Deliberately re-running an older main run
-can publish old contents. Cross-run artifact rollback is not implemented here.
+Deployments share a repository-local `github-pages` concurrency group and do not
+cancel an active deployment. This is **not newest-commit-wins ordering**. Preserve
+the caller's main-run serialization; an intentionally re-run older main run may
+publish old content. Do not reuse the deployment concurrency group for the whole
+caller workflow. Cross-run artifact rollback is outside this contract.
 
-## First publication of this infrastructure repository
+## Development and verification
 
-Requires Python 3.11+, Git, a configured global Git author identity, and a GitHub
-CLI authenticated to `github.com` as `novelKR`, with permission to create the
-repository and push workflow files. Do not paste tokens into source or chat.
-The deployment workflow itself needs none of these bootstrap credentials.
+Python 3.11+ and Git are required for tests. The deployment job does not install
+Python or this repository's dependencies.
 
 ```sh
 python3 -m venv .venv
@@ -68,121 +101,34 @@ python3 -m venv .venv
 python -m pip install -r requirements-ci.txt
 python -B -m unittest discover -s tests -v
 python -B scripts/check_contract.py
-python -B bootstrap/publish.py
 ```
 
-The last command is a **local dry run**: no GitHub requests or remote writes.
-After reviewing the selected files, explicitly publish:
+The CI-only PyYAML dependency is version-pinned, not hash-locked. Tests check YAML,
+negative capabilities, complete contract consistency, historical evidence,
+license headers and bilingual examples. They do not prove upstream SHA existence,
+legal ownership, human approval, GitHub OIDC behavior or a live deployment.
 
-```sh
-python -B bootstrap/publish.py --apply
-```
+Normal development does **not** run the initial publisher or gateway migration.
+Those baseline-specific tools are retained for historical recovery only; see
+[initial publication history](docs/history.md). That document records the first
+central CI and consumer deployment without treating it as a permanent health claim.
 
-This creates the new **public** `novelKR/docs-actions`, makes an independent
-initial commit from the selected source files, and pushes `main` without force.
-No gateway history is imported. Git identity comes from your Git configuration;
-the tool does not invent a person or email. It does not change global Git config.
-The file inventory excludes `.git`, `.local`, private files and installed packages.
-It refuses symlinks and unsafe paths.
+## License and contributions
 
-To use a repository you have explicitly created but left completely empty:
+Copying maintained code or examples requires preserving the MIT copyright and
+permission notice. Invoking the workflow does not relicense a consumer's independent
+code or documentation. Whole-repository copies must also retain the notices for
+historical exceptions. Third-party Actions/dependencies keep their own licenses.
+See [LICENSE](LICENSE), [license scope](docs/licensing.md) and
+[PROVENANCE.json](PROVENANCE.json).
 
-```sh
-python -B bootstrap/publish.py --apply --existing-empty
-```
-
-A private or nonempty repository is rejected; visibility is never changed.
-A partial failure preserves `.local/initial-repository` for inspection and
-manual recovery. It does not delete a newly created repository or retry writes
-blindly. Do not erase the preserved directory until the remote state is understood.
-
-Inspect the new central `CI` run and its `contracts` job. The initial source push
-is not a CI pass, tag, release or production deployment. Bootstrap records the
-actual source SHA in `.local/published.json`; it never fabricates a release SHA.
-
-## Connect the first consumer
-
-The prepared migration targets the existing `agent-response-gateway` PR #52
-branch `codex/docs-pages-deployment` as inspected at commit `41e1417a84ae7785e1450d2d35240fe0797c96bf`.
-It does **not** enroll any other repository.
-
-After central CI succeeds, with that PR branch checked out locally and clean:
-
-```sh
-python -B scripts/migrate_gateway.py --gateway /path/to/agent-response-gateway
-```
-
-This reads the actual central SHA from the bootstrap record, verifies the public
-remote workflow's bytes, verifies its exact main-push CI and `contracts` result,
-checks the gateway origin/branch and known source blob hashes, and prints a patch.
-No local or remote gateway changes occur without `--apply`.
-
-```sh
-python -B scripts/migrate_gateway.py --gateway /path/to/agent-response-gateway --apply
-```
-
-The applied patch changes the caller to a literal full central SHA, removes its
-local executable copy, records a consumer lock and an inert verified workflow
-snapshot, and adapts the existing workflow-contract tests. The snapshot is an
-offline verification fixture, not a second executable workflow. The focused
-gateway tests are run after local application. No commits, pushes or merges are
-automatic. Review the diff and run the full gateway checks before updating PR #52.
-Changed gateway source blobs fail explicitly instead of overwriting newer work.
-If PR #52 has since merged or changed, rebase/review the migration before use.
-
-An explicit SHA can replace the bootstrap record with
-`--central-commit <REVIEWED_FULL_COMMIT_SHA>`. Mutable refs are rejected.
-Neither an absent remote repository nor a still-running/failed central CI is
-accepted, even if the caller's deployment job would be skipped on a PR.
-
-## Additional consumers and upgrades
-
-Use the [caller job fragment](examples/caller-job.yml.example) only after the
-repository-specific builder has uploaded its verified Pages artifact and the
-required gate has succeeded. The fragment is not a complete workflow and its
-SHA marker is deliberately not a fabricated commit.
-
-Consumers retain their own VitePress, MkDocs or other build logic, base path,
-legal notices and integrity checks. They need no PAT or central repository write
-access for deployment. A public caller must be permitted to use this public
-reusable workflow by its Actions policy.
-
-Pin the central workflow to a reviewed full commit SHA. Central changes therefore
-do **not** silently propagate to every consumer. Adopt each new SHA through a
-consumer PR and its checks; revert that pin through a PR when necessary.
-`v1` names the interface contract, not an assertion that a Git tag exists.
-Dependabot proposes updates to this repository's Actions and CI-only parser;
-it does not auto-merge, grant approval or upgrade consumers automatically.
-
-Before using production deployment, each consumer must enable Pages with the
-GitHub Actions source and restrict `github-pages` to its publication branch.
-Configure required reviewers when approval is needed. Protect this repository's
-`main` with required `contracts` checks and code-owner review. The included
-[CODEOWNERS](.github/CODEOWNERS) file alone does not enable protection rules.
-No tool in this source package changes those administrative settings.
-
-## Validation and provenance
-
-Central tests parse the YAML and exercise permission, event, artifact, pinning,
-bootstrap and migration failure boundaries. These are **offline source-contract
-checks**, not a replacement for GitHub's workflow-schema validation, cross-repo
-OIDC validation or an actual Pages deployment. No default test makes live calls.
-`PyYAML==6.0.3` is a version-pinned development dependency, not a runtime dependency
-of deployment and not a hash-locked dependency set.
-
-The extracted workflow's executable YAML mapping matches its original gateway
-version. [PROVENANCE.json](PROVENANCE.json) records the source commit and blobs.
-[LICENSE](LICENSE) is the exact original AGPL-3.0 text; project code remains
-AGPL-3.0-only. No additional commercial permission or legal approval is implied.
-GitHub Actions are referenced, not vendored. No font assets or generated websites
-are included.
-
+Submit only contributions you have authority to offer under the applicable file
+license. Identify external sources and their terms. No copyright assignment,
+commercial exception, CLA execution or legal approval is implied by CI.
 See [repository instructions](AGENTS.md) and [security boundaries](SECURITY.md).
 
 ## Primary references
 
-- [Reusable workflow access, context and permissions](https://docs.github.com/en/actions/reference/workflows-and-actions/reusing-workflow-configurations)
-- [GitHub Pages artifact/deployment requirements](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)
-- [GitHub CLI API calls](https://cli.github.com/manual/gh_api)
-- [Repository creation API](https://docs.github.com/en/rest/repos/repos#create-a-repository-for-the-authenticated-user)
-- [Pinned CI parser](https://pypi.org/project/PyYAML/6.0.3/)
+[Reusable workflow context and permissions](https://docs.github.com/en/actions/reference/workflows-and-actions/reusing-workflow-configurations) ·
+[Pages artifact and deployment requirements](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) ·
+[MIT license](https://opensource.org/license/mit)

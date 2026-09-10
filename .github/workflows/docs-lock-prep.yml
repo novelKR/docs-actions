@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: MIT
+# One-time, read-only preparation; removed before the review PR is opened.
+name: Prepare Docs dependency lock
+on:
+  push:
+    branches: [codex/docs-site-self-hosting]
+permissions:
+  contents: read
+jobs:
+  lock:
+    if: github.repository == 'novelKR/docs-actions'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24.21.0'
+      - name: Resolve the exact direct dependencies without lifecycle scripts
+        run: npm install --prefix docs-site --package-lock-only --ignore-scripts
+      - name: Export public lock metadata for offline review
+        run: |
+          python3 - <<'PY'
+          import base64, gzip, hashlib, json
+          from pathlib import Path
+          data = json.dumps(json.loads(Path('docs-site/package-lock.json').read_text()), separators=(',', ':')).encode()
+          print('LOCK_SHA256=' + hashlib.sha256(data).hexdigest())
+          print('LOCK_GZIP_BASE64=' + base64.b64encode(gzip.compress(data, mtime=0)).decode())
+          PY

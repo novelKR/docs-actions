@@ -124,6 +124,8 @@ def remap(text, source, routes, root, commit):
             if marker and marker[1][0] == fence[0] and len(marker[1]) >= len(fence) and not marker[2].strip():
                 fence = None
             continue
+        if re.fullmatch(r'\[English\]\([^\n]+\) \| \[한국어\]\([^\n]+\)\s*', line):
+            continue  # The site language menu owns navigation; downloadable source stays exact.
         # Inline code is kept byte-for-byte, including placeholder angle brackets.
         pieces = re.split(r'(`+[^`\n]+`+)', line)
         lines.append(''.join(part if part.startswith('`') else prose(part) for part in pieces))
@@ -167,9 +169,9 @@ def prepare(root=ROOT):
                 'hero': {'name': 'docs-actions', 'text': 'Caller-owned Pages' if locale == 'en' else '저장소가 소유하는 배포', 'tagline': tagline,
                          'actions': [{'theme': 'brand', 'text': labels[0], 'link': prefix + '/guide/getting-started'},
                                      {'theme': 'alt', 'text': 'GitHub', 'link': REPOSITORY}]},
-                'features': [{'title': labels[1], 'details': 'PR → Build → Verify → Artifact → Pages', 'link': prefix + '/guide/site'},
-                             {'title': labels[2], 'details': 'SHA · CI · Review', 'link': prefix + '/guide/maintenance'},
-                             {'title': labels[3], 'details': 'No checkout · No rebuild · No shared PAT', 'link': prefix + '/guide/licensing'}]}
+                'features': [{'title': labels[1], 'details': 'PR → 빌드 → 검증 → 산출물 → 게시' if locale == 'ko' else 'PR → Build → Verify → Artifact → Pages', 'link': prefix + '/guide/site'},
+                             {'title': labels[2], 'details': '고정 SHA · CI · 검토' if locale == 'ko' else 'Pinned SHA · CI · Review', 'link': prefix + '/guide/maintenance'},
+                             {'title': labels[3], 'details': '빌드와 게시 권한을 분리합니다.' if locale == 'ko' else 'Separate build and publication permissions.', 'link': prefix + '/guide/licensing'}]}
         # JSON is valid YAML and avoids interpolating document text as executable code.
         home = source / (prefix.lstrip('/') + '/' if prefix else '') / 'index.md'
         home.parent.mkdir(parents=True, exist_ok=True)

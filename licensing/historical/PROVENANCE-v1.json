@@ -1,0 +1,36 @@
+{
+  "schema": "docs-actions-provenance/v1",
+  "license": "AGPL-3.0-only",
+  "extracted_at": "2026-09-10",
+  "upstream": {
+    "repository": "novelKR/agent-response-gateway",
+    "commit": "41e1417a84ae7785e1450d2d35240fe0797c96bf",
+    "pull_request": 52
+  },
+  "files": [
+    {
+      "path": ".github/workflows/reusable-pages-deploy.yml",
+      "upstream_path": ".github/workflows/reusable-pages-deploy.yml",
+      "upstream_blob_sha": "3e8d92e678397e5b7ffbeb2b10ddf27f3bb002f5",
+      "changes": "Header comments only; executable YAML mapping unchanged. Original retained in tests/fixtures/gateway-reusable.yml."
+    },
+    {
+      "path": "LICENSE",
+      "upstream_path": "LICENSE",
+      "upstream_blob_sha": "be3f7b28e564e7dd05eaf59d64adba1a4065ac0e",
+      "changes": "None; byte-for-byte identical."
+    }
+  ],
+  "runtime_actions": [
+    {
+      "repository": "actions/deploy-pages",
+      "commit": "d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e",
+      "version_label": "v4",
+      "bundled": false
+    }
+  ],
+  "notes": [
+    "No gateway source, history, consumer data or secrets are copied.",
+    "No legal approval or additional commercial license grant is asserted."
+  ]
+}

@@ -1,5 +1,5 @@
-# SPDX-License-Identifier: AGPL-3.0-only
-# Extracted from agent-response-gateway on 2026-09-10; see PROVENANCE.json.
+# SPDX-License-Identifier: MIT
+# Extraction history and license scope: PROVENANCE.json and docs/licensing.md.
 name: Reusable Pages deployment
 
 # Contract v1: deploy the caller's verified Pages artifact from the SAME run.

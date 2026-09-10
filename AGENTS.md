@@ -1,22 +1,32 @@
 # Repository instructions
 
-This repository owns a narrow, caller-owned GitHub Pages deployment contract.
-Preserve the separate build/deploy privilege boundary. Do not add arbitrary
-commands, source checkout, dependency installation, PATs, inherited secrets,
-remote-repository selection, cross-run artifacts or environment overrides to the
-privileged reusable workflow. Do not create Pages sites or change protections.
+This repository owns a narrow, caller-owned Pages deployment contract. Keep
+builds and publication checks in consumers. The privileged workflow must not
+checkout source, install dependencies, execute arbitrary commands, accept PATs,
+inherit application secrets, select another repository/run, or override the
+fixed github-pages environment. Do not change live sites or protections.
 
-Keep all third-party Actions on reviewed full commit SHAs. Updates are PRs,
-never automatic consumer migrations. Do not invent release SHAs or live URLs.
-Keep README.md and README.ko.md consistent. Preserve LICENSE and PROVENANCE.json.
-Do not copy gateway history, private records or user credentials here.
+Maintained code/docs/examples use MIT. Historical exceptions are listed in
+PROVENANCE.json and docs/licensing.md; preserve their exact bytes and notices.
+License changes require explicit maintainer direction and rights review before
+merge. Hashes do not establish ownership. Never relicense third-party code by
+changing a header. Preserve previous grants and upstream attribution.
 
-Use Python 3.11+ and the pinned CI-only requirements. Run:
+Keep dependency updates on reviewed full SHAs. A change to the deploy action
+must update the workflow and runtime action in contracts/pages-deploy-v1.json
+in the same PR, not rewrite historical fixtures. The contract validator checks
+capabilities; no test may claim that an arbitrary SHA is reviewed or exists.
+Keep English/Korean documents and examples consistent. Initial bootstrap and
+gateway migration are historical, baseline-specific tools, not upgrade paths.
+
+Use Python 3.11+ and requirements-ci.txt. Run:
 
     python -B -m unittest discover -s tests -v
     python -B scripts/check_contract.py
+    python -B bootstrap/publish.py
 
-Bootstrap and migration tools default to no writes. Real GitHub operations must
-require --apply, fail on unexpected owner/source/visibility, and never force-push.
-Unit tests must mock GitHub; they do not prove hosted CI, OIDC or live deployment.
-Do not merge or publish a release merely because local tests pass.
+The last command is a local dry run, not a request to create a repository.
+All live mutations require --apply; never force-push, auto-merge, auto-migrate
+consumers, or invent source/release SHAs. Mock network calls in unit tests.
+Source-contract tests do not prove hosted CI, OIDC, legal approval or a live
+site. Preserve unrelated changes and existing dependency-update PRs.

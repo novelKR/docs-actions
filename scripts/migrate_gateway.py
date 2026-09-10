@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: MIT
 """Prepare a SHA-pinned gateway migration after the central repository passes CI.
 
 This tool reads GitHub through the user's gh session. By default it prints a

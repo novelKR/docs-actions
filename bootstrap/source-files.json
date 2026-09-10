@@ -14,10 +14,20 @@
   "bootstrap/publish.py",
   "bootstrap/source-files.json",
   "contracts/pages-deploy-v1.json",
+  "docs/history.ko.md",
+  "docs/history.md",
+  "docs/licensing.ko.md",
+  "docs/licensing.md",
+  "docs/maintenance.ko.md",
+  "docs/maintenance.md",
   "examples/caller-job.yml.example",
+  "licensing/historical/AGPL-3.0.txt",
+  "licensing/historical/PROVENANCE-v1.json",
   "requirements-ci.txt",
   "scripts/check_contract.py",
   "scripts/migrate_gateway.py",
   "tests/fixtures/gateway-reusable.yml",
-  "tests/test_contracts.py"
+  "tests/fixtures/gateway-reusable.yml.license",
+  "tests/test_contracts.py",
+  "tests/test_maintenance.py"
 ]

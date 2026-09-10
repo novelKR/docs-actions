@@ -1,0 +1,10 @@
+{
+  "schema": "docs-actions-pages/v1",
+  "pages": [
+    {"id": "getting-started", "en": "README.md", "ko": "README.ko.md"},
+    {"id": "site", "en": "docs/site.md", "ko": "docs/site.ko.md"},
+    {"id": "maintenance", "en": "docs/maintenance.md", "ko": "docs/maintenance.ko.md"},
+    {"id": "licensing", "en": "docs/licensing.md", "ko": "docs/licensing.ko.md"},
+    {"id": "history", "en": "docs/history.md", "ko": "docs/history.ko.md"}
+  ]
+}

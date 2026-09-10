@@ -44,7 +44,7 @@ def selected_files(root):
         path = PurePosixPath(name)
         if path.is_absolute() or '..' in path.parts or str(path) != name or not path.parts:
             raise ValueError('Unsafe public file path')
-        if any(part.startswith('.') and part not in {'.github', '.gitignore', '.gitattributes'} for part in path.parts):
+        if any(part.startswith('.') and part not in {'.github', '.gitignore', '.gitattributes'} and not (path.parts[0] == 'docs-site' and part in {'.vitepress', '.node-version', '.npmrc'}) for part in path.parts):
             raise ValueError('Reserved private/configuration path in public inventory')
         full = root / name
         if any(p.is_symlink() for p in [full, *list(full.parents)[:len(path.parts)]]):

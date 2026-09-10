@@ -30,3 +30,8 @@ All live mutations require --apply; never force-push, auto-merge, auto-migrate
 consumers, or invent source/release SHAs. Mock network calls in unit tests.
 Source-contract tests do not prove hosted CI, OIDC, legal approval or a live
 site. Preserve unrelated changes and existing dependency-update PRs.
+
+For documentation-site changes, use Node 24.21.0 and the committed npm lock.
+Run npm ci, npm test and npm run build under docs-site, then run
+`python -B docs-site/scripts/site.py check`. Preview only through the verified
+loopback Python server. Do not start a Vite or esbuild development server.

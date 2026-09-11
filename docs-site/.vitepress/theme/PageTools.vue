@@ -24,10 +24,13 @@ async function copyPage() {
 </script>
 <template>
   <div v-if="frontmatter.copyPath" class="page-tools">
-    <button type="button" :disabled="busy" @click="copyPage">{{ ko ? '페이지 원문 복사' : 'Copy page Markdown' }}</button>
-    <a :href="withBase(frontmatter.copyPath)">{{ ko ? 'Markdown 원문' : 'Markdown source' }}</a>
-    <a :href="'https://github.com/novelKR/docs-actions/commit/' + frontmatter.sourceCommit">{{ frontmatter.sourceCommit?.slice(0, 7) }}</a>
-    <a :href="withBase('/web-notices.txt')">{{ ko ? '웹 고지' : 'Web notices' }}</a>
-    <span role="status" aria-live="polite">{{ status }}</span>
+    <span class="page-tools-label">{{ ko ? '문서' : 'Documentation' }}</span>
+    <div class="page-tools-actions">
+      <button type="button" :disabled="busy" :title="ko ? '이 페이지를 Markdown으로 복사' : 'Copy this page as Markdown'" @click="copyPage">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
+        {{ busy ? (ko ? '복사 중…' : 'Copying…') : (ko ? '페이지 복사' : 'Copy page') }}
+      </button>
+    </div>
+    <span v-if="status" class="page-tools-status" role="status" aria-live="polite">{{ status }}</span>
   </div>
 </template>

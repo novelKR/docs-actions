@@ -37,7 +37,7 @@
   "runtime": {
     "runner": "ubuntu-24.04",
     "timeout_minutes": 10,
-    "action": "actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e"
+    "action": "actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346"
   },
   "concurrency": {
     "group": "github-pages",

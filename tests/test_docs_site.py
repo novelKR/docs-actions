@@ -26,6 +26,14 @@ class SiteTests(unittest.TestCase):
         text=site.remap('[Guide](docs/maintenance.md)', 'README.md', {'docs/maintenance.md':'/guide/maintenance'}, ROOT,'a'*40)
         self.assertEqual(text,'[Guide](/guide/maintenance)')
 
+    def test_site_omits_language_preamble_but_preserves_original_source(self):
+        raw=(ROOT/'README.md').read_bytes()
+        rendered=site.remap(raw.decode(),'README.md',{},ROOT,'a'*40)
+        self.assertNotIn('[English](',rendered)
+        self.assertEqual((ROOT/'README.md').read_bytes(),raw)
+        code='```md\n[English](README.md) | [한국어](README.ko.md)\n```\n'
+        self.assertEqual(site.remap(code,'README.md',{},ROOT,'a'*40),code)
+
     def test_fenced_and_inline_examples_are_not_executed_or_rewritten(self):
         text='`<placeholder>`\n```yaml\n${{ secrets.EXAMPLE }}\n[example](missing.md)\n```\n'
         self.assertEqual(site.remap(text,'README.md',{},ROOT,'a'*40),text)
